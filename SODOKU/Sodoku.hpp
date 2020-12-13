@@ -20,9 +20,14 @@ public:
 
     void Read_Grid_From_File(string File_Name);
     void Print_Grid();
+    bool Check_For_Zeros(int &row, int& col);
+    bool Grid_Complete();
+    bool Valid_Entry(int val, int row, int col);
+    void Print_Correction();
 private:
     
-    char Grid[9][9]{};
+    int Grid[9][9]{};
+    int m_Correction;
     
 };
 
