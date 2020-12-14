@@ -68,7 +68,7 @@ bool Board::Grid_Complete()
 void Board::Determine_Difficulty()
 {
     //Given the Examples in the project description, the number of times the code had to corret (backtrack) a number was calculated. I took the average numbers (to the nearest 10th) between difficulties and set them as constrains to determine the grid's difficulty
-    if(m_Correction < 29450)
+    if(m_Correction < 2945)
         m_Difficulty = "Easy";
     else if(m_Correction >= 2945 && m_Correction < 25960)
         m_Difficulty = "Miduim";
@@ -251,6 +251,7 @@ bool Board::Valid_Entry(int val, int row, int col)
     return !Found_In_Row && !Found_In_col && !Found_In_Box && Grid[row][col] == 0;
 }
 
+//The Following function will fill the top left 3x3 box and will call other functions to fill the middle top 3x3, top right 3x3 box and col 0
 void Board::Fill_Empty_Left_Box()
 {
     srand((unsigned) time(0));
@@ -259,11 +260,9 @@ void Board::Fill_Empty_Left_Box()
     vector<int> Used_numbers_row_1 = {};
     vector<int> Used_numbers_row_2 = {};
     vector<int> Used_numbers_col_0 = {};
-    vector<int> valid_numbers_col_0 = {};
     vector<int> temp_Used_numbers_row_0 = {};
     vector<int> temp_Used_numbers_row_1 = {};
     vector<int> temp_Used_numbers_row_2 = {};
-    vector<int>::iterator it;
     int randomIndex;
     for(int row = 0; row < 3; row++){
         for(int col = 0; col < 3; col++)
@@ -296,6 +295,21 @@ void Board::Fill_Empty_Left_Box()
         }
     }
     
+    Fill_Middle_Box(Used_numbers_row_0, Used_numbers_row_1, Used_numbers_row_2);
+   
+    Fill_Right_Box(temp_Used_numbers_row_0, temp_Used_numbers_row_1, temp_Used_numbers_row_2);
+    
+    Fill_Col_0(Used_numbers_col_0);
+    
+    Grid_Complete();
+
+}
+
+//This function will fill the middle top box
+void Board::Fill_Middle_Box(vector<int> Used_numbers_row_0, vector<int> Used_numbers_row_1, vector<int> Used_numbers_row_2)
+{
+    srand((unsigned) time(0));
+    int randomIndex;
     for(int row = 0; row < 3; row++){
         for(int col = 3; col < 6; col++)
         {
@@ -321,7 +335,13 @@ void Board::Fill_Empty_Left_Box()
             }
         }
     }
-    
+}
+
+//This function will fill the top right box
+void Board::Fill_Right_Box(vector<int> temp_Used_numbers_row_0, vector<int> temp_Used_numbers_row_1, vector<int> temp_Used_numbers_row_2)
+{
+    srand((unsigned) time(0));
+    int randomIndex;
     for(int row = 0; row < 3; row++){
         for(int col = 6; col < 9; col++)
         {
@@ -347,19 +367,26 @@ void Board::Fill_Empty_Left_Box()
             }
         }
     }
-    
+}
+
+//This function will fill the first column of the grid
+void Board::Fill_Col_0(vector<int> Used_numbers_col_0)
+{
+    srand((unsigned) time(0));
+    int randomIndex;
+    vector<int> valid_numbers_col_0 = {};
     for(int i = 1; i<10; i++)
     {
-        bool found = false;
+        bool found_a_matching_number = false;
         for(int j = 0; j < Used_numbers_col_0.size(); j++)
         {
             if(i == Used_numbers_col_0[j])
             {
-                found = true;
+                found_a_matching_number = true;
                 break;
             }
         }
-        if (!found)
+        if (!found_a_matching_number)
             valid_numbers_col_0.push_back(i);
     }
     
@@ -367,14 +394,84 @@ void Board::Fill_Empty_Left_Box()
     {
         randomIndex = rand() % valid_numbers_col_0.size();
         Grid[row][0] = valid_numbers_col_0[randomIndex];
-         valid_numbers_col_0.erase(valid_numbers_col_0.begin() + randomIndex);
+        valid_numbers_col_0.erase(valid_numbers_col_0.begin() + randomIndex);
     }
-    
-    Grid_Complete();
-
 }
 
-void Board::Fill_Empty_Grid2()
+void Board::Unique_Solution(int &No_of_Solutions)
 {
-    
+    int row, col;
+
+    if (Check_For_Zeros(row, col))
+    {
+        No_of_Solutions++;
+        return; // No more zeros
+    }
+
+
+    for(int val = 1;val <= 9 && m_number_of_Solutions < 2; val++)
+    {
+        if(Valid_Entry(val,row,col))
+        {
+            Grid[row][col] = val;
+            Unique_Solution(No_of_Solutions);
+        }
+        Grid[row][col] = 0;
+        m_Correction++;
+    }
 }
+
+void Board::Hide_Numbers(char Difficulty)
+{
+    vector<int> Number_to_Hide = {1,2,3,4,5,6,7,8,9};
+    srand((unsigned) time(0));
+    int random_Num;
+    int Level;
+    int No_of_Solutions;
+    int temp_num;
+    m_Correction = 0;
+    switch (Difficulty)
+    {
+        case 'E':
+            Level = 2945;
+            break;
+        case 'M':
+            Level = 25960;
+            break;
+        case 'H':
+            Level = 90900;
+            break;
+        case 'S':
+            Level = 500000;
+            break;
+        default:
+            Level = 25960;
+            break;
+    }
+    while(Number_to_Hide.size() != 0)
+    {
+        int randomIndex = rand() % Number_to_Hide.size();
+        random_Num = Number_to_Hide[randomIndex];
+        Number_to_Hide.erase(Number_to_Hide.begin() + randomIndex);
+        if(m_Correction < Level)
+        {
+            for(int row = 0; row < 9; row++)
+            {
+                for(int col = 0; col < 9; col++)
+                {
+                    if(Grid[row][col] == random_Num)
+                    {
+                        temp_num = Grid[row][col];
+                        Grid[row][col] = 0;
+                        No_of_Solutions = 0;
+                        Unique_Solution(No_of_Solutions);
+                        if(No_of_Solutions != 1)
+                            Grid[row][col] = temp_num;
+                    }
+                }
+            }
+        }
+    }
+    cout<<"Corrected " << m_Correction <<" times."<<endl;
+}
+

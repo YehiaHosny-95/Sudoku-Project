@@ -24,23 +24,21 @@ public:
     bool Grid_Complete();
     bool Valid_Entry(int val, int row, int col);
     void Determine_Difficulty();
+    void Fill_Middle_Box(vector<int> Used_numbers_row_0, vector<int> Used_numbers_row_1, vector<int> Used_numbers_row_2);
+    void Fill_Right_Box(vector<int> Temp_Used_numbers_row_0, vector<int> Temp_Used_numbers_row_1, vector<int> Temp_Used_numbers_row_2);
+    void Fill_Col_0(vector<int> Used_numbers_col_0);
     void Fill_Empty_Left_Box();
-    void Fill_Empty_Grid2();
+    void Unique_Solution(int &No_of_Solutions);
+    void Hide_Numbers(char Difficulty);
 private:
     
     int Grid[9][9]{0};
     int m_Correction;
+    int m_number_of_Solutions = 0;
     string m_Difficulty;
     
 };
 
-/*class Puzzle : public Board
-{
-public:
-    void Fill_Empty_Grid();
-private:
-    int Grid[9][9]{};
-};
-*/
+
 #endif /* Sodoku_hpp */
 
