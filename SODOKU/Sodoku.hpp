@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <vector>
 using namespace std;
 
 class Board
@@ -34,7 +35,6 @@ private:
     
     int Grid[9][9]{0};
     int m_Correction;
-    int m_number_of_Solutions = 0;
     string m_Difficulty;
     
 };

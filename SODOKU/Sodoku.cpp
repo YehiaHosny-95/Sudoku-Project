@@ -50,15 +50,16 @@ bool Board::Grid_Complete()
     int col;
     if (Check_For_Zeros(row, col))
         return true; // No more zeros
+    
     for(int val = 1; val <= 9; val++)
     {
         if(Valid_Entry(val,row,col))
         {
-            Grid[row][col] = val;
+            Grid[row][col] = val; //Assign possible value
             if (Grid_Complete())
                 return true;
             Grid[row][col] = 0;
-            m_Correction++;
+            m_Correction++; //Increment the number a box had to be reset
         }
     }
     return false;
@@ -67,7 +68,7 @@ bool Board::Grid_Complete()
 //Determine the Difficulty of the grid
 void Board::Determine_Difficulty()
 {
-    //Given the Examples in the project description, the number of times the code had to corret (backtrack) a number was calculated. I took the average numbers (to the nearest 10th) between difficulties and set them as constrains to determine the grid's difficulty
+    //Given the Examples in the project description, the number of times the code had to reset (backtrack) a number was calculated. I took the average numbers (to the nearest 10th) between difficulties and set them as constrains to determine the grid's difficulty
     if(m_Correction < 2945)
         m_Difficulty = "Easy";
     else if(m_Correction >= 2945 && m_Correction < 25960)
@@ -79,7 +80,7 @@ void Board::Determine_Difficulty()
     cout<<"Corrected "<<m_Correction<<" Times."<<" Difficulty: "<<m_Difficulty<< endl;
 }
 
-//Grab an empty box (i.e. a box with 0 inside it)
+//Grab an empty box (i.e. a box with 0 inside it), if non found return false
 bool Board::Check_For_Zeros(int &row, int &col)
 {
     
@@ -122,6 +123,7 @@ bool Board::Valid_Entry(int val, int row, int col)
     }
     
     //check if number in the 3x3 box
+    //Left top box
     if(row>=0 && row<=2 && col>=0 && col<=2)
     {
         for(int i = 0; i < 3; i++)
@@ -136,6 +138,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Middle top box
     if(row>=0 && row<=2 && col>=3 && col<=5)
     {
         for(int i = 0; i < 3; i++)
@@ -150,6 +153,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Right top box
     if(row>=0 && row<=2 && col>=6 && col<=8)
     {
         for(int i = 0; i < 3; i++)
@@ -164,6 +168,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Left middle Box
     if(row>=3 && row<=5 && col>=0 && col<=2)
     {
         for(int i = 3; i < 6; i++)
@@ -178,6 +183,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Middle middle Box
     if(row>=3 && row<=5 && col>=3 && col<=5)
     {
         for(int i = 3; i < 6; i++)
@@ -192,6 +198,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Middle right box
     if(row>=3 && row<=5 && col>=6 && col<=8)
     {
         for(int i = 3; i < 6; i++)
@@ -206,6 +213,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Buttom left box
     if(row>=6 && row<=8 && col>=0 && col<=2)
     {
         for(int i = 6; i < 9; i++)
@@ -220,6 +228,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Buttom Middle Box
     if(row>=6 && row<=8 && col>=3 && col<=5)
     {
         for(int i = 6; i < 9; i++)
@@ -234,6 +243,7 @@ bool Board::Valid_Entry(int val, int row, int col)
             }
         }
     }
+    //Buttom right box
     if(row>=6 && row<=8 && col>=6 && col<=8)
     {
         for(int i = 6; i < 9; i++)
@@ -251,7 +261,7 @@ bool Board::Valid_Entry(int val, int row, int col)
     return !Found_In_Row && !Found_In_col && !Found_In_Box && Grid[row][col] == 0;
 }
 
-//The Following function will fill the top left 3x3 box and will call other functions to fill the middle top 3x3, top right 3x3 box and col 0
+//The Following function will fill the top left 3x3 box and will call other functions to fill the middle top 3x3, top right 3x3 box and col 0. All of these functions are used to generate a Sudodku puzzle
 void Board::Fill_Empty_Left_Box()
 {
     srand((unsigned) time(0));
@@ -267,8 +277,8 @@ void Board::Fill_Empty_Left_Box()
     for(int row = 0; row < 3; row++){
         for(int col = 0; col < 3; col++)
         {
-            randomIndex = rand() % Valid_numbers_Box_1.size();
-            Grid[row][col] = Valid_numbers_Box_1[randomIndex];
+            randomIndex = rand() % Valid_numbers_Box_1.size(); //Random index from the vector
+            Grid[row][col] = Valid_numbers_Box_1[randomIndex]; //Random number from 1-9
             switch (row)
             {
                 case 0:
@@ -398,6 +408,7 @@ void Board::Fill_Col_0(vector<int> Used_numbers_col_0)
     }
 }
 
+//This function will make sure the generated Puzzle has only one solution
 void Board::Unique_Solution(int &No_of_Solutions)
 {
     int row, col;
@@ -409,7 +420,7 @@ void Board::Unique_Solution(int &No_of_Solutions)
     }
 
 
-    for(int val = 1;val <= 9 && m_number_of_Solutions < 2; val++)
+    for(int val = 1;val <= 9 && No_of_Solutions < 2; val++)
     {
         if(Valid_Entry(val,row,col))
         {
@@ -427,7 +438,7 @@ void Board::Hide_Numbers(char Difficulty)
     srand((unsigned) time(0));
     int random_Num;
     int Level;
-    int No_of_Solutions;
+    int No_of_Solutions = 0;
     int temp_num;
     m_Correction = 0;
     switch (Difficulty)
@@ -466,12 +477,13 @@ void Board::Hide_Numbers(char Difficulty)
                         No_of_Solutions = 0;
                         Unique_Solution(No_of_Solutions);
                         if(No_of_Solutions != 1)
+                        {
                             Grid[row][col] = temp_num;
+                        }
                     }
                 }
             }
         }
     }
-    cout<<"Corrected " << m_Correction <<" times."<<endl;
 }
 
